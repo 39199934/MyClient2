@@ -4,11 +4,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -24,6 +28,97 @@ public class MainActivity extends AppCompatActivity {
     MyHandle myHandle;
     TextView helloWorld;
     RecvMessage recvMessage;
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode==3001)
+        {
+            if(resultCode==SettingHostActivity.RESULT_OK)
+            {
+                String getAddress = data.getStringExtra("address");
+                int getPort = data.getIntExtra("port", 5666);
+                if(applicationUtil!=null) {
+                    applicationUtil.disConnectToHost();
+                    applicationUtil.setAddress(getAddress);
+                    applicationUtil.setPort(getPort);
+
+                    applicationUtil.connectToHost();
+                }
+
+            }
+            else if(resultCode==SettingHostActivity.RESULT_CANCELED)
+            {
+
+            }
+        }
+        if(requestCode==3002)
+        {
+            //service.setRecvInterFace(interFace);
+            if(socketModel!=null)
+            {
+                socketModel.setReciveMessageInterface(recvMessage);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.m_menuConnect:
+                if(applicationUtil!=null)
+                {
+                    applicationUtil.connectToHost();
+                }
+
+                break;
+
+            case R.id.m_menuDisConnect:
+                if(applicationUtil!=null)
+                {
+                    applicationUtil.disConnectToHost();
+                }
+                break;
+            case R.id.m_menuViewHostInfo:
+                if(applicationUtil!=null) {
+
+
+                    String address = applicationUtil.getAddress();
+                    int port =applicationUtil.getPort();
+                    Toast.makeText(this, "host Info,address:" + address + ",the port:" + port, Toast.LENGTH_SHORT).show();
+                }
+
+                break;
+
+            case R.id.m_menuSetHostInfo:
+                if(applicationUtil!=null) {
+                    String setAddress = applicationUtil.getAddress();
+                    int setPort =applicationUtil.getPort();
+                    Intent setIntent = new Intent(this, SettingHostActivity.class);
+                    Bundle setBundle = new Bundle();
+
+                    setIntent.putExtra("address", setAddress);
+                    setIntent.putExtra("port", setPort);
+                    startActivityForResult(setIntent, 3001);
+                }
+
+
+                break;
+            case R.id.m_startChatActivity:
+                Intent chatIntent=new Intent(MainActivity.this,ChatActivity.class);
+                startActivityForResult(chatIntent,3002);
+                break;
+            default:
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     class MyHandle extends Handler
     {
         @Override
@@ -114,9 +209,7 @@ public class MainActivity extends AppCompatActivity {
         socketModel.setReciveMessageInterface(recvMessage);
         socketModel.sendMessage(msgJson);
         socketModel.setRunning(false);
-        Intent chatIntent=new Intent(MainActivity.this,ChatActivity.class);
-        //chatIntent.putExtra("model",socketModel);
-        startActivity(chatIntent);
+
 
     }
 
@@ -169,6 +262,10 @@ public class MainActivity extends AppCompatActivity {
                 {
                     applicationUtil.disConnectToHost();
                 }
+                break;
+            case R.id.m_btnStartChat:
+                Intent intent=new Intent(MainActivity.this,ChatActivity.class);
+                startActivity(intent);
                 break;
 
         }

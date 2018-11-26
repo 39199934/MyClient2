@@ -5,6 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <TextView
         android:id="@+id/m_hello"
@@ -33,5 +37,14 @@
         android:text="connect"
         tools:layout_editor_absoluteX="148dp"
         tools:layout_editor_absoluteY="378dp" />
+        <Button
+            android:id="@+id/m_btnStartChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClicked"
+            android:text="chat"
+            tools:layout_editor_absoluteX="148dp"
+            tools:layout_editor_absoluteY="378dp" />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
